@@ -1,12 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Sentiment Result</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/result.css') }}">
 </head>
-<body>
-  <h1>Prediction Result</h1>
-  <p><strong>Your Review:</strong> {{ review }}</p>
-  <p><strong>Predicted Sentiment:</strong> {{ sentiment }}</p>
-  <a href="/">Try another review</a>
+<body class="{% if sentiment == 'positive' %}liked-bg{% else %}disliked-bg{% endif %}">
+  <div class="result-box">
+    <h1>Sentiment Analysis Result</h1>
+    <p class="review-text">"{{ review }}"</p>
+
+    {% if sentiment == 'positive' %}
+      <div class="sentiment-box liked">
+        <div class="emoji">👍</div>
+        The customer liked this review!
+      </div>
+    {% else %}
+      <div class="sentiment-box disliked">
+        <div class="emoji">👎</div>
+        The customer did not like this restaurant.
+      </div>
+    {% endif %}
+
+    <a href="/" class="btn">Analyze Another Review</a>
+  </div>
 </body>
 </html>

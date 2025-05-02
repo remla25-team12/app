@@ -1,13 +1,18 @@
-FROM python:3.12.9-slim
+FROM python:3.11-slim
 
-WORKDIR /root/
+WORKDIR /app
+
+# Install Git so pip can install from Git-based URLs
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+# Copy and install dependencies
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python -m pip install --upgrade pip &&\
-	pip install -r requirements.txt
+# Copy the app and templates
+COPY . .
+COPY templates /app/templates
 
-#ENV URL_MODEL_SERVICE = localhost:8080
+ENV MODEL_SERVICE_URL=http://model-service:8080/predict
 
-EXPOSE 8080
-
-CMD ["python", "serve_model.py"]
+CMD ["python", "app.py"]
