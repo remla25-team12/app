@@ -1,14 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Restaurant Sentiment</title>
+  <meta charset="UTF-8">
+  <title>Restaurant Sentiment Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
 <body>
-  <h1>Submit a Restaurant Review</h1>
-  <form action="/predict" method="POST">
-    <label for="review">Your Review:</label><br>
-    <textarea name="review" id="review" rows="4" cols="50" required></textarea><br><br>
-    <button type="submit">Analyze Sentiment</button>
-  </form>
+  <div class="overlay">
+    <h2>Gourmet Vibes – Group 12</h2>
+    <h1>Submit a Restaurant Review</h1>
+    <form action="/predict" method="POST">
+      <label for="review">Your Review:</label>
+      <textarea name="review" id="review" rows="5" required></textarea>
+      <button type="submit">Analyze Sentiment</button>
+    </form>
+  </div>
 </body>
 </html>
