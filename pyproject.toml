@@ -1,0 +1,9 @@
+[tool.poetry]
+name = "remla25-app"
+version = "0.0.0"
+description = "Frontend and service app for restaurant sentiment analysis"
+authors = ["Ayush"]
+
+[build-system]
+requires = ["poetry-core>=1.8.0"]
+build-backend = "poetry.core.masonry.api"

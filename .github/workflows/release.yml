@@ -1,0 +1,24 @@
+name: Verify App on Git Tag
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run version check
+        run: |
+          python -c "from lib_version.version_util import VersionUtil; print('Lib Version:', VersionUtil.get_version())"
