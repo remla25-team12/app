@@ -1,4 +1,4 @@
-name: Build lib-version on Git Tag
+name: Verify App on Git Tag
 
 on:
   push:
@@ -6,28 +6,19 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install build tools and dynamic versioning
-        run: |
-          pip install --upgrade pip
-          pip install build poetry-dynamic-versioning
-
-      - name: Install dependencies from requirements.txt
+      - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Build the package with Git tag version
-        run: python -m build
-
-      - name: Show built package files
-        run: ls -lh dist/
+      - name: Run version check
+        run: |
+          python -c "from lib_version.version_util import VersionUtil; print('Lib Version:', VersionUtil.get_version())"
