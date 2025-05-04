@@ -19,6 +19,10 @@ body {
   .disliked-bg {
     background-image: url('https://images.unsplash.com/photo-1495561604046-3108243c72e4?q=80&w=2001&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); 
   }
+
+  .unknown-bg {
+    background-image: url('https://images.unsplash.com/photo-1513082325166-c105b20374bb?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); 
+  }
   
   .result-box {
     background-color: #ffffffee;
@@ -57,6 +61,15 @@ body {
   .disliked {
     background-color: #f8d7da;
     color: #721c24;
+  }
+
+  .unknown {
+    background-color: #dcd7f8;
+    color: #373644;
+  }
+
+  .error-text {
+    font-size: 1rem;
   }
   
   .emoji {
