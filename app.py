@@ -14,7 +14,7 @@ def predict():
     review = request.form["review"]
     try:
         response = requests.post(MODEL_URL, json={"text": review})
-        prediction = response.json().get("label", "Unknown")
+        prediction = response.json().get("prediction", "Unknown")
     except Exception as e:
         prediction = f"Error contacting model service: {e}"
     return render_template("result.html", review=review, sentiment=prediction)
