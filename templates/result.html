@@ -5,12 +5,12 @@
   <title>Sentiment Result</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/result.css') }}">
 </head>
-<body class="{% if sentiment == 'positive' %}liked-bg{% else %}disliked-bg{% endif %}">
+<body class="{% if sentiment == '1' %}liked-bg{% else %}disliked-bg{% endif %}">
   <div class="result-box">
     <h1>Sentiment Analysis Result</h1>
     <p class="review-text">"{{ review }}"</p>
 
-    {% if sentiment == 'positive' %}
+    {% if sentiment == '1' %}
       <div class="sentiment-box liked">
         <div class="emoji">👍</div>
         The customer liked this review!
