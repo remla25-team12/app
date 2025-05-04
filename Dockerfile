@@ -1,15 +1,22 @@
+# Builder stage
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+
+
+# Final stage
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install Git so pip can install from Git-based URLs
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /install /usr/local
 
-# Copy and install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the app and templates
 COPY . .
 COPY templates /app/templates
 
