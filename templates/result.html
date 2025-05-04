@@ -5,7 +5,7 @@
   <title>Sentiment Result</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/result.css') }}">
 </head>
-<body class="{% if sentiment == '1' %}liked-bg{% else %}disliked-bg{% endif %}">
+<body class="{% if sentiment == '1' %}liked-bg{% elif sentiment == '0' %}disliked-bg{% else %}unknown-bg{% endif %}">
   <div class="result-box">
     <h1>Sentiment Analysis Result</h1>
     <p class="review-text">"{{ review }}"</p>
@@ -13,12 +13,19 @@
     {% if sentiment == '1' %}
       <div class="sentiment-box liked">
         <div class="emoji">👍</div>
-        The customer liked this review!
+        The customer liked this restaurant!
       </div>
-    {% else %}
+    {% elif sentiment == '0' %}
       <div class="sentiment-box disliked">
         <div class="emoji">👎</div>
         The customer did not like this restaurant.
+      </div>
+    {% else %}
+      <div class="sentiment-box unknown">
+        <div class="emoji">❓</div>
+        Customer sentiment unknown:
+        
+        <p class="error-text">{{ sentiment }}</p>
       </div>
     {% endif %}
 
