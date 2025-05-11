@@ -65,3 +65,34 @@ body {
     background-color: #2980b9;
   }
   
+.version-info {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+  color: #000000;  /* Light text for dark/overlay backgrounds */
+  background-color: rgba(255, 255, 255, 0.05);  /* Light see-through */
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  backdrop-filter: blur(3px);  /* Optional: gives a frosted-glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.version-item {
+  text-align: center;
+}
+
+.version-item strong {
+  display: block;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.version-item span {
+  font-size: 0.85rem;
+  color: #ddd;
+}
+

@@ -1,35 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Sentiment Result</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/result.css') }}">
 </head>
 <body class="{% if sentiment == '1' %}liked-bg{% elif sentiment == '0' %}disliked-bg{% else %}unknown-bg{% endif %}">
-  <div class="result-box">
-    <h1>Sentiment Analysis Result</h1>
-    <p class="review-text">"{{ review }}"</p>
+  <div class="container">
+    <div class="result-box">
+      <h1>Sentiment Analysis Result</h1>
+      <p class="review-text">"{{ review }}"</p>
 
-    {% if sentiment == '1' %}
-      <div class="sentiment-box liked">
-        <div class="emoji">👍</div>
-        The customer liked this restaurant!
-      </div>
-    {% elif sentiment == '0' %}
-      <div class="sentiment-box disliked">
-        <div class="emoji">👎</div>
-        The customer did not like this restaurant.
-      </div>
-    {% else %}
-      <div class="sentiment-box unknown">
-        <div class="emoji">❓</div>
-        Customer sentiment unknown:
-        
-        <p class="error-text">{{ sentiment }}</p>
-      </div>
-    {% endif %}
+      {% if sentiment == '1' %}
+        <div class="sentiment-box liked">
+          <div class="emoji">👍</div>
+          The customer liked this restaurant!
+        </div>
+      {% elif sentiment == '0' %}
+        <div class="sentiment-box disliked">
+          <div class="emoji">👎</div>
+          The customer did not like this restaurant.
+        </div>
+      {% else %}
+        <div class="sentiment-box unknown">
+          <div class="emoji">❓</div>
+          Customer sentiment unknown:
+          <p class="error-text">{{ sentiment }}</p>
+        </div>
+      {% endif %}
 
-    <a href="/" class="btn">Analyze Another Review</a>
+      <div class="feedback-section">
+        <h2>Was this prediction accurate?</h2>
+        <form action="{{ url_for('feedback') }}" method="post">
+          <input type="hidden" name="review" value="{{ review }}">
+          <input type="hidden" name="predicted_sentiment" value="{{ sentiment }}">
+          <div class="feedback-buttons">
+            <button type="submit" name="feedback" value="correct" id="correct-btn">Yes, it's correct</button>
+            <button type="submit" name="feedback" value="incorrect" id="incorrect-btn">No, it's wrong</button>
+          </div>
+        </form>
+      </div>
+
+      <a href="/" class="btn">Analyze Another Review</a>
+    </div>
   </div>
 </body>
 </html>
