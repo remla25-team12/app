@@ -1,14 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Restaurant Sentiment Analyzer</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
+
 <body>
   <div class="overlay">
     <h2>Gourmet Vibes – Group 12</h2>
     <h1>Submit a Restaurant Review</h1>
+
+    <div class="version-info">
+      <div class="version-item">
+        <strong>App Version:</strong> {{ app_version }}
+      </div>
+      <div class="version-item">
+        <strong>Model Version:</strong> {{ model_version }}
+      </div>
+    </div>
     <form action="/predict" method="POST">
       <label for="review">Your Review:</label>
       <textarea name="review" id="review" rows="5" required></textarea>
@@ -16,4 +27,5 @@
     </form>
   </div>
 </body>
+
 </html>
