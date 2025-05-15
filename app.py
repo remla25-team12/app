@@ -1,12 +1,25 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, Response
 import os
 import requests
 from lib_version.version_util import VersionUtil
+from prometheus_client import Counter, Gauge, Histogram, generate_latest, CollectorRegistry
+import time
 
 app = Flask(__name__)
 MODEL_URL = os.getenv("MODEL_SERVICE_URL", "http://localhost:5001/predict")
 NEW_DATA_URL = os.getenv("NEW_DATA_URL", "http://localhost:5001/new_data")
 VERSION_URL = os.getenv("VERSION_URL", "http://localhost:5001/version")
+
+registry = CollectorRegistry()
+
+# Define the monitoring metrics
+total_reviews_submitted = Counter('total_reviews_submitted', 'Total number of restaurant reviews submitted', registry=registry)
+total_correct_predictions = Counter('total_correct_predictions', 'Total number of correct restaurant sentiment predictions', registry=registry)
+total_incorrect_predictions = Counter('total_incorrect_predictions', 'Total number of incorrect restaurant sentiment predictions', registry=registry)
+active_users_gauge = Gauge('active_users_gauge', 'Number of active users', registry=registry)
+review_length_histogram = Histogram('review_length_histogram', 'Distribution of restaurant review lengths (in characters)', buckets=(50, 100, 200, 500, float('inf')), registry=registry)
+correct_prediction_review_length_histogram = Histogram('correct_prediction_review_length_histogram', 'Distribution of review lengths (in characters) for correct predictions', buckets=(50, 100, 200, 500, float('inf')), registry=registry)
+incorrect_prediction_review_length_histogram = Histogram('incorrect_prediction_review_length_histogram', 'Distribution of review lengths (in characters) for incorrect predictions', buckets=(50, 100, 200, 500, float('inf')), registry=registry)
 
 def get_model_version():
     try:
@@ -22,11 +35,14 @@ def get_model_version():
 def index():
     app_version = VersionUtil.get_version()
     model_version = get_model_version()
+    active_users_gauge.inc() # TODO: We can't really keep track of active users this way. The logic should be re-defined!
     return render_template("index.html", app_version=app_version, model_version=model_version)
 
 @app.route("/predict", methods=["POST"])
 def predict():
     review = request.form["review"]
+    review_length_histogram.observe(len(review)) # Observe the length of the submitted review for the histogram
+    total_reviews_submitted.inc() # Increment the total reviews submitted for the counter
     try:
         response = requests.post(MODEL_URL, json={"text": review})
         prediction = response.json().get("prediction", "Unknown")
@@ -48,9 +64,17 @@ def feedback():
         return "Invalid predicted sentiment value", 400
 
     corrected_sentiment = predicted_sentiment_int
+
+    # Incorrect prediction
     if feedback_value == "incorrect":
         corrected_sentiment = 1 - predicted_sentiment_int  # flip 0<->1
+        total_incorrect_predictions.inc()
+        incorrect_prediction_review_length_histogram.observe(len(review))
 
+    # Correct prediction
+    else:
+        total_correct_predictions.inc()
+        correct_prediction_review_length_histogram.observe(len(review))
 
     try:
         response = requests.post(NEW_DATA_URL, json={
@@ -62,6 +86,13 @@ def feedback():
         return f"Failed to send feedback to model-service: {e}", 500
 
     return render_template("thanks.html")
+
+@app.route('/metrics')
+def metrics():
+    """
+    Endpoint for exposing the Prometheus metrics
+    """
+    return Response(generate_latest(registry), mimetype='text/plain')
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
