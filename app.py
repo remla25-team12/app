@@ -24,6 +24,7 @@ correct_prediction_review_length_histogram = Histogram('correct_prediction_revie
 incorrect_prediction_review_length_histogram = Histogram('incorrect_prediction_review_length_histogram', 'Distribution of review lengths (in characters) for incorrect predictions', buckets=(50, 100, 200, 500, float('inf')), registry=registry)
 
 # Gauge metrics
+current_percentage_of_correct_predictions = Gauge('current_percentage_of_correct_predictions', 'Current percentage of correct restaurant sentiment predictions', registry=registry)
 cpu_usage_percent_gauge = Gauge('cpu_usage_percent_gauge', 'Percentage of CPU usage', registry=registry)
 memory_usage_percent_gauge = Gauge('memory_usage_percent_gauge', 'Percentage of memory usage', registry=registry)
 
@@ -93,6 +94,13 @@ def feedback():
     else:
         total_correct_predictions.inc()
         correct_prediction_review_length_histogram.observe(len(review))
+
+    total_predictions = total_correct_predictions.get() + total_incorrect_predictions.get()
+    if total_predictions > 0:
+        percentage_correct = (total_correct_predictions.get() / total_predictions) * 100
+        current_percentage_of_correct_predictions.set(percentage_correct)
+    else:
+        current_percentage_of_correct_predictions.set(0)
 
     try:
         response = requests.post(NEW_DATA_URL, json={
