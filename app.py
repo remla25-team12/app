@@ -37,6 +37,12 @@ current_percentage_of_correct_predictions_gauge = Gauge('current_percentage_of_c
 cpu_usage_percent_gauge = Gauge('cpu_usage_percent_gauge', 'Percentage of CPU usage', registry=registry)
 memory_usage_percent_gauge = Gauge('memory_usage_percent_gauge', 'Percentage of memory usage', registry=registry)
 
+def get_counter_value(counter):
+    '''
+    Method for extracting the value of a counter metric
+    '''
+    return list(counter.collect())[0].samples[0].value
+
 def get_model_version():
     try:
         response = requests.get(VERSION_URL)  # replace with actual model version endpoint
@@ -105,9 +111,9 @@ def feedback():
     else:
         total_correct_predictions.inc()
 
-    total_predictions = total_correct_predictions.get() + total_incorrect_predictions.get()
+    total_predictions = get_counter_value(total_correct_predictions) + get_counter_value(total_incorrect_predictions)
     if total_predictions > 0:
-        percentage_correct = (total_correct_predictions.get() / total_predictions) * 100
+        percentage_correct = (get_counter_value(total_correct_predictions) / total_predictions) * 100
         current_percentage_of_correct_predictions_gauge.labels(model_version).set(percentage_correct)
     else:
         current_percentage_of_correct_predictions_gauge.labels(model_version).set(0)
