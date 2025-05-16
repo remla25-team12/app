@@ -3,7 +3,7 @@ import os
 import requests
 from lib_version.version_util import VersionUtil
 from prometheus_client import Counter, Gauge, Histogram, generate_latest, CollectorRegistry
-import time
+import psutil
 
 app = Flask(__name__)
 MODEL_URL = os.getenv("MODEL_SERVICE_URL", "http://localhost:5001/predict")
@@ -13,13 +13,19 @@ VERSION_URL = os.getenv("VERSION_URL", "http://localhost:5001/version")
 registry = CollectorRegistry()
 
 # Define the monitoring metrics
-total_reviews_submitted = Counter('total_reviews_submitted', 'Total number of restaurant reviews submitted', registry=registry)
-total_correct_predictions = Counter('total_correct_predictions', 'Total number of correct restaurant sentiment predictions', registry=registry)
-total_incorrect_predictions = Counter('total_incorrect_predictions', 'Total number of incorrect restaurant sentiment predictions', registry=registry)
-active_users_gauge = Gauge('active_users_gauge', 'Number of active users', registry=registry)
+# Counter metrics
+total_reviews_submitted = Counter('reviews_submitted', 'Total number of restaurant reviews submitted', registry=registry)
+total_correct_predictions = Counter('correct_predictions', 'Total number of correct restaurant sentiment predictions', registry=registry)
+total_incorrect_predictions = Counter('incorrect_predictions', 'Total number of incorrect restaurant sentiment predictions', registry=registry)
+
+# Histogram metrics
 review_length_histogram = Histogram('review_length_histogram', 'Distribution of restaurant review lengths (in characters)', buckets=(50, 100, 200, 500, float('inf')), registry=registry)
 correct_prediction_review_length_histogram = Histogram('correct_prediction_review_length_histogram', 'Distribution of review lengths (in characters) for correct predictions', buckets=(50, 100, 200, 500, float('inf')), registry=registry)
 incorrect_prediction_review_length_histogram = Histogram('incorrect_prediction_review_length_histogram', 'Distribution of review lengths (in characters) for incorrect predictions', buckets=(50, 100, 200, 500, float('inf')), registry=registry)
+
+# Gauge metrics
+cpu_usage_percent_gauge = Gauge('cpu_usage_percent_gauge', 'Percentage of CPU usage', registry=registry)
+memory_usage_percent_gauge = Gauge('memory_usage_percent_gauge', 'Percentage of memory usage', registry=registry)
 
 def get_model_version():
     try:
@@ -31,11 +37,23 @@ def get_model_version():
     except Exception:
         return "unavailable"
     
+def get_process_metrics():
+    try:
+        process = psutil.Process(os.getpid())
+        cpu_usage_percent_gauge.set(process.cpu_percent())
+
+        memory_info = process.memory_info()
+        total_memory = psutil.virtual_memory().total
+        memory_percent = (memory_info.rss / total_memory) * 100
+        memory_usage_percent_gauge.set(memory_percent)
+    except Exception as e:
+        print(f"Error getting process metrics: {e}")
+    
 @app.route("/")
 def index():
     app_version = VersionUtil.get_version()
     model_version = get_model_version()
-    active_users_gauge.inc() # TODO: We can't really keep track of active users this way. The logic should be re-defined!
+    #active_users_gauge.inc() # TODO: We can't really keep track of active users this way. The logic should be re-defined!
     return render_template("index.html", app_version=app_version, model_version=model_version)
 
 @app.route("/predict", methods=["POST"])
@@ -92,8 +110,8 @@ def metrics():
     """
     Endpoint for exposing the Prometheus metrics
     """
+    get_process_metrics()
     return Response(generate_latest(registry), mimetype='text/plain')
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
-
+    app.run(debug=True, host="0.0.0.0", port=5005)
