@@ -8,10 +8,10 @@ body {
 
   .people-container {
     max-width: 1000px;
-    margin: 100px auto 40px auto; /* Match index */
+    margin: 70px auto 40px auto; 
     padding: 40px 20px;
     text-align: center;
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.85);
     border-radius: 12px;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
   }
@@ -60,6 +60,20 @@ body {
     font-size: 14px;
     color: #666;
   }
+
+  .person-card a,
+    .person-card a:visited,
+    .person-card a:active,
+    .person-card a:focus {
+    text-decoration: none;
+    color: #222; /* or choose another consistent color */
+    }
+
+    .person-card a:hover {
+    color: #0077cc; /* Optional: add a hover color */
+    text-decoration: none;
+    }
+
   
   .person-photo {
     width: 120px;
