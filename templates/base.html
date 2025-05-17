@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Restaurant Sentiment Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <style>
+    /* Minimal nav styling that won't clash with your design */
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      padding: 10px 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      margin-right: 20px;
+      font-weight: bold;
+    }
+
+    .navbar a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="nav-content">
+          <a href="{{ url_for('index') }}">Home</a>
+          <a href="{{ url_for('people') }}">People</a>
+        </div>
+    </div>
+
+  {% block content %}{% endblock %}
+</body>
+<style>
+    .navbar {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      background-color: black;
+      padding: 10px 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+  
+    .nav-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 20px;
+    }
+  
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+  
+    .navbar a:hover,
+    .navbar a:focus {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</html>
