@@ -1,31 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="UTF-8">
-  <title>Restaurant Sentiment Analyzer</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-</head>
+{% block content %}
+<div class="overlay">
+  <h2>Gourmet Vibes – Group 12</h2>
+  <h1>Submit a Restaurant Review</h1>
 
-<body>
-  <div class="overlay">
-    <h2>Gourmet Vibes – Group 12</h2>
-    <h1>Submit a Restaurant Review</h1>
-
-    <div class="version-info">
-      <div class="version-item">
-        <strong>App Version:</strong> {{ app_version }}
-      </div>
-      <div class="version-item">
-        <strong>Model Version:</strong> {{ model_version }}
-      </div>
+  <div class="version-info">
+    <div class="version-item">
+      <strong>App Version:</strong> {{ app_version }}
     </div>
-    <form action="/predict" method="POST">
-      <label for="review">Your Review:</label>
-      <textarea name="review" id="review" rows="5" required></textarea>
-      <button type="submit">Analyze Sentiment</button>
-    </form>
+    <div class="version-item">
+      <strong>Model Version:</strong> {{ model_version }}
+    </div>
   </div>
-</body>
 
-</html>
+  <form action="/predict" method="POST">
+    <label for="review">Your Review:</label>
+    <textarea name="review" id="review" rows="5" required></textarea>
+    <button type="submit">Analyze Sentiment</button>
+  </form>
+</div>
+{% endblock %}
