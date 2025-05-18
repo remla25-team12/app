@@ -12,18 +12,19 @@
     <div class="people-row">
       <div class="person-card">
         <img src="{{ url_for('static', filename='images/Selin.jpeg') }}" class="person-photo">
-        <h3><a href="https://www.linkedin.com/in/selinceydeli/?originalSubdomain=nl" target="_blank">Selin Ceydeli</a></h3>
-
+        
+        <h3><a href="{{ url_for('track_click', member_name='selin') }}" target="_blank">Selin Ceydeli</a></h3>
       </div>
       <div class="person-card">
         <img src="{{ url_for('static', filename='images/Mees.jpeg') }}" class="person-photo">
-        <h3><a href="https://www.linkedin.com/in/mees-c-169901291/" target="_blank">Mees Chammat</a></h3>
-        <h3></h3>
-        <p></p>
+        
+        <h3><a href="{{ url_for('track_click', member_name='mees') }}" target="_blank">Mees Chammat</a></h3>
       </div>
       <div class="person-card">
         <img src="{{ url_for('static', filename='images/Phil.jpeg') }}" class="person-photo">
-        <h3><a href="https://www.linkedin.com/in/philippe-henryy/?originalSubdomain=nl" target="_blank">Philippe Henry</a></h3>
+       
+        <h3><a href="{{ url_for('track_click', member_name='philippe') }}" target="_blank">Philippe Henry</a></h3>
+
 
         <p></p>
       </div>
@@ -34,12 +35,15 @@
       <div class="person-card">
 
         <img src="{{ url_for('static', filename='images/Ayush.jpeg') }}" class="person-photo">
-        <h3><a href="https://www.linkedin.com/in/ayush-kuruvilla/?originalSubdomain=in" target="_blank">Ayush Kuruvilla</a></h3>
+        
+        <h3><a href="{{ url_for('track_click', member_name='ayush') }}" target="_blank">Ayush Kuruvilla</a></h3>
+
         <p></p>
       </div>
       <div class="person-card">
         <img src="{{ url_for('static', filename='images/Peter.jpeg') }}" class="person-photo">
-        <h3><a href="https://www.linkedin.com/in/peter-huang-66a7451b6/" target="_blank">Pengxuan Huang</a></h3>
+        
+        <h3><a href="{{ url_for('track_click', member_name='peter') }}" target="_blank">Pengxuan Huang</a></h3>
         <p></p>
       </div>
     </div>

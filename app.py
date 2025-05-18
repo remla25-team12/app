@@ -20,6 +20,15 @@ total_reviews_submitted is labeled with app_version to keep track of the usage o
 total_reviews_submitted = Counter('reviews_submitted', 'Total number of restaurant reviews submitted', ['app_version'], registry=registry)
 total_correct_predictions = Counter('correct_predictions', 'Total number of correct restaurant sentiment predictions', registry=registry)
 total_incorrect_predictions = Counter('incorrect_predictions', 'Total number of incorrect restaurant sentiment predictions', registry=registry)
+# Add this at the top near other counters
+profile_clicks = Counter(
+    'profile_clicks', 
+    'Number of clicks to each team member’s LinkedIn profile', 
+    ['member_name'], 
+    registry=registry
+)
+
+
 
 # Histogram metrics
 '''
@@ -136,6 +145,25 @@ def metrics():
     """
     get_process_metrics()
     return Response(generate_latest(registry), mimetype='text/plain')
+
+
+@app.route('/click/<member_name>')
+def track_click(member_name):
+    member_links = {
+        "selin": "https://www.linkedin.com/in/selinceydeli/?originalSubdomain=nl",
+        "mees": "https://www.linkedin.com/in/mees-c-169901291/",
+        "philippe": "https://www.linkedin.com/in/philippe-henryy/?originalSubdomain=nl",
+        "ayush": "https://www.linkedin.com/in/ayush-kuruvilla/?originalSubdomain=in",
+        "peter": "https://www.linkedin.com/in/peter-huang-66a7451b6/",
+    }
+
+    url = member_links.get(member_name.lower())
+    if url:
+        profile_clicks.labels(member_name.lower()).inc()
+        return redirect(url)
+    else:
+        return "Unknown member", 404
+
 
 @app.route("/people")
 def people():
