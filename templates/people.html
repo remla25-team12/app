@@ -11,40 +11,38 @@
     <!-- First Row: 3 People -->
     <div class="people-row">
       <div class="person-card">
-        <img src="{{ url_for('static', filename='images/Selin.jpeg') }}" class="person-photo">
-        
-        <h3><a href="{{ url_for('track_click', member_name='selin') }}" target="_blank">Selin Ceydeli</a></h3>
+        <a href="{{ url_for('track_click', member_name='selin') }}" target="_blank" class="card-link">
+          <img src="{{ url_for('static', filename='images/Selin.jpeg') }}" class="person-photo">
+          <h3>Selin Ceydeli</h3>
+        </a>
       </div>
       <div class="person-card">
-        <img src="{{ url_for('static', filename='images/Mees.jpeg') }}" class="person-photo">
-        
-        <h3><a href="{{ url_for('track_click', member_name='mees') }}" target="_blank">Mees Chammat</a></h3>
+        <a href="{{ url_for('track_click', member_name='mees') }}" target="_blank" class="card-link">
+          <img src="{{ url_for('static', filename='images/Mees.jpeg') }}" class="person-photo">
+          <h3>Mees Chammat</h3>
+        </a>
       </div>
       <div class="person-card">
-        <img src="{{ url_for('static', filename='images/Phil.jpeg') }}" class="person-photo">
-       
-        <h3><a href="{{ url_for('track_click', member_name='philippe') }}" target="_blank">Philippe Henry</a></h3>
-
-
-        <p></p>
+        <a href="{{ url_for('track_click', member_name='philippe') }}" target="_blank" class="card-link">
+          <img src="{{ url_for('static', filename='images/Phil.jpeg') }}" class="person-photo">
+          <h3>Philippe Henry</h3>
+        </a>
       </div>
     </div>
 
     <!-- Second Row: 2 People -->
     <div class="people-row">
       <div class="person-card">
-
-        <img src="{{ url_for('static', filename='images/Ayush.jpeg') }}" class="person-photo">
-        
-        <h3><a href="{{ url_for('track_click', member_name='ayush') }}" target="_blank">Ayush Kuruvilla</a></h3>
-
-        <p></p>
+        <a href="{{ url_for('track_click', member_name='ayush') }}" target="_blank" class="card-link">
+          <img src="{{ url_for('static', filename='images/Ayush.jpeg') }}" class="person-photo">
+          <h3>Ayush Kuruvilla</h3>
+        </a>
       </div>
       <div class="person-card">
-        <img src="{{ url_for('static', filename='images/Peter.jpeg') }}" class="person-photo">
-        
-        <h3><a href="{{ url_for('track_click', member_name='peter') }}" target="_blank">Pengxuan Huang</a></h3>
-        <p></p>
+        <a href="{{ url_for('track_click', member_name='peter') }}" target="_blank" class="card-link">
+          <img src="{{ url_for('static', filename='images/Peter.jpeg') }}" class="person-photo">
+          <h3>Pengxuan Huang</h3>
+        </a>
       </div>
     </div>
   </div>
