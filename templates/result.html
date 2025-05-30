@@ -9,6 +9,10 @@
 <body class="{% if sentiment == '1' %}liked-bg{% elif sentiment == '0' %}disliked-bg{% else %}unknown-bg{% endif %}">
   <div class="container">
     <div class="result-box">
+      <div class="top-right">
+        <a href="{{ url_for('index') }}" class="go-back-button">← Back</a>
+      </div>
+      
       <h1>Sentiment Analysis Result</h1>
       <p class="review-text">"{{ review }}"</p>
 
@@ -41,8 +45,6 @@
           </div>
         </form>
       </div>
-
-      <a href="/" class="btn">Analyze Another Review</a>
     </div>
   </div>
 </body>
