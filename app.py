@@ -4,8 +4,11 @@ import requests
 from lib_version.version_util import VersionUtil
 from prometheus_client import Counter, Gauge, Histogram, generate_latest, CollectorRegistry
 import psutil
+from flasgger import Swagger
 
 app = Flask(__name__)
+swagger = Swagger(app)
+
 MODEL_URL = os.getenv("MODEL_SERVICE_URL", "http://localhost:5001/predict")
 NEW_DATA_URL = os.getenv("NEW_DATA_URL", "http://localhost:5001/new_data")
 VERSION_URL = os.getenv("VERSION_URL", "http://localhost:5001/version")
@@ -27,8 +30,6 @@ profile_clicks = Counter(
     ['member_name'], 
     registry=registry
 )
-
-
 
 # Histogram metrics
 '''
@@ -76,12 +77,38 @@ def get_process_metrics():
     
 @app.route("/")
 def index():
+    """
+    Render the main page with app and model version
+    ---
+    summary: Render the main UI showing app and model version
+    responses:
+      200:
+        description: Main HTML page with version info
+    """
     app_version = VersionUtil.get_version()
     model_version = get_model_version()
     return render_template("index.html", app_version=app_version, model_version=model_version)
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    """
+    Submit a restaurant review for sentiment prediction
+    ---
+    summary: Predict sentiment based on submitted review text
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: review
+        type: string
+        required: true
+        description: The restaurant review text
+    responses:
+      200:
+        description: HTML page rendered with sentiment prediction
+      500:
+        description: Model service is unreachable or errored
+    """
     app_version = VersionUtil.get_version()
     review = request.form["review"]
     all_review_length_histogram.labels(app_version).observe(len(review)) # Observe the length of the submitted review for the histogram
@@ -95,6 +122,36 @@ def predict():
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
+    """
+    Submit feedback on the predicted sentiment
+    ---
+    summary: Submit feedback indicating if the sentiment prediction was correct
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: review
+        type: string
+        required: true
+        description: The original review text
+      - in: formData
+        name: predicted_sentiment
+        type: string
+        required: true
+        description: The predicted sentiment (0 or 1)
+      - in: formData
+        name: feedback
+        type: string
+        required: true
+        description: Feedback label ('correct' or 'incorrect')
+    responses:
+      200:
+        description: HTML thank-you page after successful feedback
+      400:
+        description: Invalid predicted sentiment format
+      500:
+        description: Error when submitting feedback to the model service
+    """
     model_version = get_model_version()
     review = request.form.get("review")
     predicted_sentiment = request.form.get("predicted_sentiment")
@@ -141,7 +198,12 @@ def feedback():
 @app.route('/metrics')
 def metrics():
     """
-    Endpoint for exposing the Prometheus metrics
+    Expose application metrics for Prometheus
+    ---
+    summary: Expose Prometheus metrics for scraping
+    responses:
+      200:
+        description: Prometheus metrics in plain text format
     """
     get_process_metrics()
     return Response(generate_latest(registry), mimetype='text/plain')
@@ -149,6 +211,22 @@ def metrics():
 
 @app.route('/click/<member_name>')
 def track_click(member_name):
+    """
+    Track LinkedIn profile click for a team member
+    ---
+    summary: Increment click count and redirect to member's LinkedIn profile
+    parameters:
+      - in: path
+        name: member_name
+        type: string
+        required: true
+        description: Lowercase name of the team member
+    responses:
+      302:
+        description: Redirect to the LinkedIn profile
+      404:
+        description: Member not found
+    """
     member_links = {
         "selin": "https://www.linkedin.com/in/selinceydeli/?originalSubdomain=nl",
         "mees": "https://www.linkedin.com/in/mees-c-169901291/",
@@ -167,6 +245,14 @@ def track_click(member_name):
 
 @app.route("/people")
 def people():
+    """
+    Render the team members page
+    ---
+    summary: Display the people/team page
+    responses:
+      200:
+        description: HTML page rendered with team member links
+    """
     return render_template("people.html")
 
 if __name__ == "__main__":
