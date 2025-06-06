@@ -24,7 +24,7 @@ total_incorrect_predictions = Counter('incorrect_predictions', 'Total number of 
 profile_clicks = Counter(
     'profile_clicks', 
     'Number of clicks to each team member’s LinkedIn profile', 
-    ['member_name'], 
+    ['member_name','app_version'], 
     registry=registry
 )
 
@@ -156,10 +156,10 @@ def track_click(member_name):
         "ayush": "https://www.linkedin.com/in/ayush-kuruvilla/?originalSubdomain=in",
         "peter": "https://www.linkedin.com/in/peter-huang-66a7451b6/",
     }
-
+    app_version = VersionUtil.get_version()
     url = member_links.get(member_name.lower())
     if url:
-        profile_clicks.labels(member_name.lower()).inc()
+        profile_clicks.labels(member_name.lower(), app_version).inc()
         return redirect(url)
     else:
         return "Unknown member", 404
