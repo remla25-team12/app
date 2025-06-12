@@ -11,12 +11,24 @@ import re
 try:
     with open("/app/version.txt") as f:
         full_version = f.read().strip()
-        # Extract X.Y.Z part (major.minor.patch)
-        match = re.match(r'^(\d+\.\d+\.\d+)', full_version)
-        if match:
-            VersionUtil.set_version(match.group(1))
+        
+        # Match pre-release first
+        pre_match = re.match(r'^(\d+)\.(\d+)\.(\d+)-pre\.', full_version)
+        if pre_match:
+            major = int(pre_match.group(1))
+            minor = int(pre_match.group(2))
+            patch = int(pre_match.group(3))
+            # Subtract 1 patch for stable version
+            stable_patch = patch - 1 if patch > 0 else 0
+            stable_version = f"{major}.{minor}.{stable_patch}"
+            VersionUtil.set_version(stable_version)
         else:
-            VersionUtil.set_version("dev")
+            # Fallback: normal X.Y.Z
+            match = re.match(r'^(\d+\.\d+\.\d+)', full_version)
+            if match:
+                VersionUtil.set_version(match.group(1))
+            else:
+                VersionUtil.set_version("dev")
 except FileNotFoundError:
     VersionUtil.set_version("dev")
     
