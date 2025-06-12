@@ -119,16 +119,16 @@ jobs:
           PATCH=$(echo "$CURRENT_VERSION" | cut -d . -f 3)
 
           NEXT_PATCH=$((PATCH + 1))
-
           TIMESTAMP=$(date -u +"%Y%m%d.%H%M")
           NEXT_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}-pre.${TIMESTAMP}"
           echo "Computed next pre-release version: $NEXT_VERSION"
 
           echo "$NEXT_VERSION" > version.txt
+          git add version.txt  
           echo "next_version=$NEXT_VERSION" >> $GITHUB_ENV
 
-      - name: Commit and push new pre-release version
+      - name: Commit and push pre-release version
         run: |
-          git add version.txt
-          git diff --quiet && echo "No changes to commit" || git commit -m "Bump version to ${{ env.next_version }} after release ${{ needs.bump-build-release.outputs.version }}"
+          git commit -m "Bump version to ${{ env.next_version }} after release ${{ needs.build-and-release.outputs.version }}" || echo "Nothing to commit"
           git push origin main
+          
