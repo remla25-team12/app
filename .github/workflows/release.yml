@@ -1,34 +1,79 @@
-name: Release
+name: Auto Bump Patch + Release App
 
 on:
   push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  bump-build-release:
+    if: ${{ !contains(github.event.head_commit.message, 'Bump version to') }}
     runs-on: ubuntu-22.04
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Parse version info from tag
+      - name: Configure Git
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Fetch latest tags and bump patch
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
+          echo "Latest semantic version tag is: $LATEST_TAG"
+              
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No existing semantic version tag found, starting from v0.0.1"
+            NEW_TAG="v0.0.1"
+          else
+            VERSION=${LATEST_TAG#v}
+            MAJOR=$(echo "$VERSION" | cut -d . -f 1)
+            MINOR=$(echo "$VERSION" | cut -d . -f 2)
+            PATCH=$(echo "$VERSION" | cut -d . -f 3)
+              
+            NEW_PATCH=$((PATCH + 1))
+            NEW_TAG="v$MAJOR.$MINOR.$NEW_PATCH"
+          fi
+              
+          # Derive version without 'v' prefix
+          NEW_VERSION=${NEW_TAG#v}
+              
+          echo "Creating new tag: $NEW_TAG"
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
+              
+          echo "$NEW_VERSION" > version.txt
+          git add version.txt
+          git commit -m "Update version.txt to $NEW_VERSION"
+          git push origin main
+
+      - name: Parse version info from version.txt
+        id: parse-version
+        run: |
+          VERSION=$(cat version.txt)
           MAJOR=$(echo "$VERSION" | cut -d . -f 1)
           MINOR=$(echo "$VERSION" | cut -d . -f 2)
           PATCH=$(echo "$VERSION" | cut -d . -f 3)
+
           echo "version=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "version_major=$MAJOR" >> $GITHUB_ENV
           echo "version_minor=$MINOR" >> $GITHUB_ENV
           echo "version_patch=$PATCH" >> $GITHUB_ENV
 
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
       - name: Registry Login (ghcr.io)
         run: |
           echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v2
 
       - name: Build and Push Docker Image
         run: |
@@ -39,12 +84,51 @@ jobs:
             --tag $IMG:${{ env.version_major }}.${{ env.version_minor }}.latest \
             --tag $IMG:${{ env.version_major }}.latest \
             --tag $IMG:latest \
-            --push \
-            .          
+            --push .
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-
+          tag_name: v${{ env.version }}
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  bump-pre-release-version:
+    needs: bump-build-release
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Compute next pre-release version
+        run: |
+          CURRENT_VERSION=$(cat version.txt)
+          echo "Current version.txt: $CURRENT_VERSION"
+
+          MAJOR=$(echo "$CURRENT_VERSION" | cut -d . -f 1)
+          MINOR=$(echo "$CURRENT_VERSION" | cut -d . -f 2)
+          PATCH=$(echo "$CURRENT_VERSION" | cut -d . -f 3)
+
+          NEXT_PATCH=$((PATCH + 1))
+
+          TIMESTAMP=$(date -u +"%Y%m%d.%H%M")
+          NEXT_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}-pre.${TIMESTAMP}"
+          echo "Computed next pre-release version: $NEXT_VERSION"
+
+          echo "$NEXT_VERSION" > version.txt
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_ENV
+
+      - name: Commit and push new pre-release version
+        run: |
+          git add version.txt
+          git diff --quiet && echo "No changes to commit" || git commit -m "Bump version to ${{ env.next_version }} after release ${{ needs.bump-build-release.outputs.version }}"
+          git push origin main

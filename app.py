@@ -6,6 +6,13 @@ from prometheus_client import Counter, Gauge, Histogram, generate_latest, Collec
 import psutil
 from flasgger import Swagger
 
+# Set version from version.txt
+try:
+    with open("/app/version.txt") as f:
+        VersionUtil.set_version(f.read().strip())
+except FileNotFoundError:
+    VersionUtil.set_version("dev")
+    
 app = Flask(__name__)
 swagger = Swagger(app)
 
