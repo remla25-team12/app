@@ -5,11 +5,18 @@ from lib_version.version_util import VersionUtil
 from prometheus_client import Counter, Gauge, Histogram, generate_latest, CollectorRegistry
 import psutil
 from flasgger import Swagger
+import re 
 
 # Set version from version.txt
 try:
     with open("/app/version.txt") as f:
-        VersionUtil.set_version(f.read().strip())
+        full_version = f.read().strip()
+        # Extract X.Y.Z part (major.minor.patch)
+        match = re.match(r'^(\d+\.\d+\.\d+)', full_version)
+        if match:
+            VersionUtil.set_version(match.group(1))
+        else:
+            VersionUtil.set_version("dev")
 except FileNotFoundError:
     VersionUtil.set_version("dev")
     
